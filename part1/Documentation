@@ -1,0 +1,283 @@
+# HBnB - Holberton AirBnB Clone
+
+## 📋 Overview
+
+HBnB is a full-stack web application project in Hobelton Coding School which aims to replicate core functionality of AirBnB. This technical documentation outlines the system architecture, data models, and API interactions.
+
+## 🏗️ Architecture
+
+### Three-Layer Architecture
+
+The application follows a three-layer architecture pattern with facade design:
+
+```mermaid
+classDiagram
+    class PresentationLayer {
+        <<Interface>>
+        +UserAPI
+        +PlaceAPI
+        +ReviewAPI
+        +AmenityAPI
+    }
+    
+    class BusinessLogicLayer {
+        <<Facade>>
+        +UserService
+        +PlaceService
+        +ReviewService
+        +AmenityService
+    }
+    
+    class PersistenceLayer {
+        <<DataAccess>>
+        +UserRepository
+        +PlaceRepository
+        +ReviewRepository
+        +AmenityRepository
+    }
+    
+    PresentationLayer --> BusinessLogicLayer : Uses Facade
+    BusinessLogicLayer --> PersistenceLayer : Data Operations
+```
+
+### Layer Responsibilities
+
+| Layer | Purpose | Components |
+|-------|---------|------------|
+| **Presentation** | Handle HTTP requests/responses | REST APIs, Request validation |
+| **Business Logic** | Core application rules | Services, Data validation |
+| **Persistence** | Data storage and retrieval | Repositories, Database queries |
+
+## 📊 Data Models
+
+### Class Diagram
+
+```mermaid
+classDiagram
+    class BaseModel {
+        +String id
+        +DateTime created_at
+        +DateTime updated_at
+        +save()
+        +to_dict()
+    }
+    
+    class User {
+        +String email
+        +String password
+        +String first_name
+        +String last_name
+        +create()
+        +update()
+        +delete()
+    }
+    
+    class Place {
+        +String city_id
+        +String user_id
+        +String name
+        +String description
+        +Integer number_rooms
+        +Integer number_bathrooms
+        +Integer max_guest
+        +Integer price_by_night
+        +Float latitude
+        +Float longitude
+        +create()
+        +update()
+        +delete()
+    }
+    
+    class Review {
+        +String place_id
+        +String user_id
+        +String text
+        +create()
+        +update()
+        +delete()
+    }
+    
+    class Amenity {
+        +String name
+        +create()
+        +update()
+        +delete()
+    }
+    
+    BaseModel <|-- User : inherits
+    BaseModel <|-- Place : inherits
+    BaseModel <|-- Review : inherits
+    BaseModel <|-- Amenity : inherits
+    
+    User "1" --> "*" Place : owns
+    User "1" --> "*" Review : writes
+    Place "1" --> "*" Review : has
+    Place "*" --> "*" Amenity : offers
+```
+
+### Entity Descriptions
+
+#### BaseModel
+- Base class for all models
+- Tracks creation/update timestamps
+- Provides serialization methods
+
+#### User
+- Manages user accounts
+- Stores encrypted passwords
+- Links to owned places and reviews
+
+#### Place
+- Property listings
+- Contains location details
+- References owner and amenities
+
+#### Review
+- User feedback system
+- Links users to places
+- Text-based reviews
+
+#### Amenity
+- Property features (WiFi, Pool, etc.)
+- Many-to-many with places
+
+## 🔄 API Flows
+
+### User Registration
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant UserAPI
+    participant UserService
+    participant UserRepository
+    participant Database
+    
+    Client->>UserAPI: POST /users (email, password, name)
+    UserAPI->>UserService: create_user(user_data)
+    UserService->>UserService: validate_email()
+    UserService->>UserService: hash_password()
+    UserService->>UserRepository: save(user)
+    UserRepository->>Database: INSERT user
+    Database-->>UserRepository: user_id
+    UserRepository-->>UserService: user_object
+    UserService-->>UserAPI: user_created
+    UserAPI-->>Client: 201 Created (user_data)
+```
+
+### Place Creation
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant PlaceAPI
+    participant PlaceService
+    participant UserService
+    participant PlaceRepository
+    participant Database
+    
+    Client->>PlaceAPI: POST /places (place_data, user_id)
+    PlaceAPI->>PlaceService: create_place(place_data)
+    PlaceService->>UserService: verify_user(user_id)
+    UserService-->>PlaceService: user_exists
+    PlaceService->>PlaceService: validate_place_data()
+    PlaceService->>PlaceRepository: save(place)
+    PlaceRepository->>Database: INSERT place
+    Database-->>PlaceRepository: place_id
+    PlaceRepository-->>PlaceService: place_object
+    PlaceService-->>PlaceAPI: place_created
+    PlaceAPI-->>Client: 201 Created (place_data)
+```
+
+### Review Submission
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant ReviewAPI
+    participant ReviewService
+    participant PlaceService
+    participant UserService
+    participant ReviewRepository
+    participant Database
+    
+    Client->>ReviewAPI: POST /reviews (review_data)
+    ReviewAPI->>ReviewService: create_review(review_data)
+    ReviewService->>UserService: verify_user(user_id)
+    UserService-->>ReviewService: user_exists
+    ReviewService->>PlaceService: verify_place(place_id)
+    PlaceService-->>ReviewService: place_exists
+    ReviewService->>ReviewService: validate_review()
+    ReviewService->>ReviewRepository: save(review)
+    ReviewRepository->>Database: INSERT review
+    Database-->>ReviewRepository: review_id
+    ReviewRepository-->>ReviewService: review_object
+    ReviewService-->>ReviewAPI: review_created
+    ReviewAPI-->>Client: 201 Created (review_data)
+```
+
+### Fetching Places
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant PlaceAPI
+    participant PlaceService
+    participant PlaceRepository
+    participant Database
+    
+    Client->>PlaceAPI: GET /places?city=paris&max_price=100
+    PlaceAPI->>PlaceService: get_places(filters)
+    PlaceService->>PlaceService: validate_filters()
+    PlaceService->>PlaceRepository: find_by_criteria(filters)
+    PlaceRepository->>Database: SELECT places WHERE ...
+    Database-->>PlaceRepository: place_records
+    PlaceRepository-->>PlaceService: place_objects[]
+    PlaceService->>PlaceService: format_response()
+    PlaceService-->>PlaceAPI: places_list
+    PlaceAPI-->>Client: 200 OK (places[])
+```
+
+## 🚀 API Endpoints
+
+### Users
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/users` | Register new user |
+| GET | `/users/{id}` | Get user details |
+| PUT | `/users/{id}` | Update user info |
+| DELETE | `/users/{id}` | Delete user account |
+
+### Places
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/places` | Create new place |
+| GET | `/places` | List places (with filters) |
+| GET | `/places/{id}` | Get place details |
+| PUT | `/places/{id}` | Update place info |
+| DELETE | `/places/{id}` | Delete place |
+
+### Reviews
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/reviews` | Submit review |
+| GET | `/places/{id}/reviews` | Get place reviews |
+| PUT | `/reviews/{id}` | Update review |
+| DELETE | `/reviews/{id}` | Delete review |
+
+### Amenities
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/amenities` | Create amenity |
+| GET | `/amenities` | List all amenities |
+| PUT | `/amenities/{id}` | Update amenity |
+| DELETE | `/amenities/{id}` | Delete amenity |
+
+
+## 👥 Authors
+
+- Gabriel García Muñiz
+
+## 🙏 Acknowledgments
+
+- Holberton Coding School San Juan - Full-Stack Project

@@ -1,2 +1,2 @@
 # holberton-hbnb
-This will be the working directory for the Full-Stack Application Project of Hbnb.
+This repository is for the Project HBNB where we will be creating a mock application to simulate AirBnB
