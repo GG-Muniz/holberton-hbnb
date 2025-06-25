@@ -1,10 +1,9 @@
-# app/api/v1/amenities.py
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from app.services.facade import HBnBFacade
+from app.services import facade
 
 api = Namespace('amenities', description='Amenity operations')
-facade = HBnBFacade()
+
 
 # Define models for request/response
 amenity_create_model = api.model('AmenityCreate', {

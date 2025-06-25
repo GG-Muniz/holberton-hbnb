@@ -1,10 +1,10 @@
 # app/api/v1/reviews.py
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from app.services.facade import HBnBFacade
+from app.services import facade
 
 api = Namespace('reviews', description='Review operations')
-facade = HBnBFacade()
+
 
 # Define models for request/response
 review_create_model = api.model('ReviewCreate', {
