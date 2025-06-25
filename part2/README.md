@@ -210,17 +210,12 @@ Complete review system with all CRUD operations and proper business rule enforce
 Create and run comprehensive tests for all endpoints, ensuring proper validation and error handling.
 
 **Testing Components:**
-1. **Unit Tests** (`test_hbnb.py`)
+1. **Unit Tests** (`test_script.py`)
    - Model validation tests
    - Facade method tests
    - Business rule enforcement tests
 
-2. **Integration Tests** (`automated_test_script.py`)
-   - Full API endpoint testing
-   - Error case handling
-   - Status code verification
-
-3. **Manual Testing**
+2. **Manual Testing**
    - cURL commands for all endpoints
    - Swagger UI testing
    - Edge case validation
@@ -283,13 +278,7 @@ curl -X POST http://localhost:5000/api/v1/places/ \
 
 ### Run Unit Tests
 ```bash
-python test_hbnb.py
-```
-
-### Run Automated API Tests
-```bash
-# Make sure the Flask app is running first
-python automated_test_script.py
+python test_script.py
 ```
 
 ### Access Swagger Documentation
