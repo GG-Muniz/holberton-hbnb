@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('users', description='User operations')
@@ -76,9 +77,18 @@ class User(Resource):
     @api.doc('update_user')
     @api.expect(user_update_model)
     @api.marshal_with(user_response)
+    @api.response(401, 'Authentication required')
+    @api.response(403, 'Access denied - can only update your own profile')
+    @jwt_required()
     def put(self, user_id):
-        """Update a user"""
+        """Update a user (requires authentication and self-ownership)"""
         try:
+            current_user_id = get_jwt_identity()
+            
+            # Check if the current user is trying to update their own profile
+            if user_id != current_user_id:
+                api.abort(403, 'Access denied - you can only update your own profile')
+            
             data = request.json
             # remove None values
             update_data = {k: v for k, v in data.items() if v is not None}

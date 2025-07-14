@@ -1,6 +1,7 @@
 # app/api/v1/places.py
 from flask_restx import Namespace, Resource, fields
 from flask import request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('places', description='Place operations')
@@ -35,7 +36,6 @@ place_create_model = api.model('PlaceCreate', {
     'city_id': fields.String(required=True, description='City ID'),
     'latitude': fields.Float(required=True, description='Latitude (-90 to 90)'),
     'longitude': fields.Float(required=True, description='Longitude (-180 to 180)'),
-    'host_id': fields.String(required=True, description='Host user ID'),
     'number_of_rooms': fields.Integer(required=True, description='Number of rooms'),
     'number_of_bathrooms': fields.Integer(required=True, description='Number of bathrooms'),
     'price_per_night': fields.Float(required=True, description='Price per night (must be positive)'),
@@ -113,10 +113,16 @@ class PlaceList(Resource):
     @api.expect(place_create_model)
     @api.marshal_with(place_response, code=201)
     @api.response(400, 'Invalid input or validation error')
+    @api.response(401, 'Authentication required')
+    @jwt_required()
     def post(self):
-        """Create a new place"""
+        """Create a new place (requires authentication)"""
         try:
             data = request.json
+            # Use the authenticated user as the host
+            current_user_id = get_jwt_identity()
+            data['host_id'] = current_user_id
+            
             place = facade.create_place(**data)
 
             # prepare response with full details
@@ -167,9 +173,21 @@ class Place(Resource):
     @api.doc('update_place')
     @api.expect(place_update_model)
     @api.marshal_with(place_response)
+    @api.response(401, 'Authentication required')
+    @api.response(403, 'Access denied - not the place owner')
+    @jwt_required()
     def put(self, place_id):
-        """Update a place"""
+        """Update a place (requires authentication and ownership)"""
         try:
+            current_user_id = get_jwt_identity()
+            
+            # Get the place to check ownership
+            place = facade.get_place(place_id)
+            
+            # Check if the current user is the owner of the place
+            if place.host_id != current_user_id:
+                api.abort(403, 'Access denied - you can only update places you own')
+            
             data = request.json
             # remove None values
             update_data = {k: v for k, v in data.items() if v is not None}

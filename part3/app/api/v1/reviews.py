@@ -1,6 +1,7 @@
 # app/api/v1/reviews.py
 from flask_restx import Namespace, Resource, fields
 from flask import request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('reviews', description='Review operations')
@@ -9,7 +10,6 @@ api = Namespace('reviews', description='Review operations')
 # Define models for request/response
 review_create_model = api.model('ReviewCreate', {
     'place_id': fields.String(required=True, description='Place ID'),
-    'user_id': fields.String(required=True, description='User ID'),
     'rating': fields.Integer(required=True, description='Rating (1-5)', min=1, max=5),
     'comment': fields.String(required=True, description='Review comment')
 })
@@ -63,13 +63,26 @@ class ReviewList(Resource):
     @api.expect(review_create_model)
     @api.marshal_with(review_response, code=201)
     @api.response(400, 'Invalid input or user already reviewed this place')
+    @api.response(401, 'Authentication required')
+    @api.response(403, 'Cannot review your own place')
+    @jwt_required()
     def post(self):
-        """Create a new review"""
+        """Create a new review (requires authentication)"""
         try:
             data = request.json
+            current_user_id = get_jwt_identity()
+            place_id = data.get('place_id')
+            
+            # Check if the place exists and get place details
+            place = facade.get_place(place_id)
+            
+            # Prevent users from reviewing their own places
+            if place.host_id == current_user_id:
+                api.abort(403, 'You cannot review your own place')
+            
             review = facade.create_review(
-                place_id=data.get('place_id'),
-                user_id=data.get('user_id'),
+                place_id=place_id,
+                user_id=current_user_id,
                 rating=data.get('rating'),
                 comment=data.get('comment')
             )
@@ -104,9 +117,21 @@ class Review(Resource):
     @api.doc('update_review')
     @api.expect(review_update_model)
     @api.marshal_with(review_response)
+    @api.response(401, 'Authentication required')
+    @api.response(403, 'Access denied - not the review owner')
+    @jwt_required()
     def put(self, review_id):
-        """Update a review (only rating and comment can be updated)"""
+        """Update a review (requires authentication and ownership)"""
         try:
+            current_user_id = get_jwt_identity()
+            
+            # Get the review to check ownership
+            review = facade.get_review(review_id)
+            
+            # Check if the current user is the owner of the review
+            if review.user_id != current_user_id:
+                api.abort(403, 'Access denied - you can only update reviews you created')
+            
             data = request.json
             # validate rating if provided
             if 'rating' in data and data['rating'] is not None:
@@ -128,9 +153,21 @@ class Review(Resource):
 
     @api.doc('delete_review')
     @api.response(204, 'Review deleted successfully')
+    @api.response(401, 'Authentication required')
+    @api.response(403, 'Access denied - not the review owner')
+    @jwt_required()
     def delete(self, review_id):
-        """Delete a review"""
+        """Delete a review (requires authentication and ownership)"""
         try:
+            current_user_id = get_jwt_identity()
+            
+            # Get the review to check ownership
+            review = facade.get_review(review_id)
+            
+            # Check if the current user is the owner of the review
+            if review.user_id != current_user_id:
+                api.abort(403, 'Access denied - you can only delete reviews you created')
+            
             facade.delete_review(review_id)
             return '', 204
         except ValueError:
