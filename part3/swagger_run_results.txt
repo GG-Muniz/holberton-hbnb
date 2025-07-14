@@ -1,0 +1,1128 @@
+{
+    "swagger": "2.0",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/amenities/": {
+            "post": {
+                "responses": {
+                    "400": {
+                        "description": "Amenity already exists or validation error"
+                    },
+                    "201": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AmenityResponse"
+                        }
+                    }
+                },
+                "summary": "Create a new amenity",
+                "operationId": "create_amenity",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/AmenityCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "amenities"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/AmenityResponse"
+                            }
+                        }
+                    }
+                },
+                "summary": "List all amenities",
+                "operationId": "list_amenities",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "amenities"
+                ]
+            }
+        },
+        "/api/v1/amenities/{amenity_id}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "description": "The amenity identifier",
+                    "name": "amenity_id",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "put": {
+                "responses": {
+                    "404": {
+                        "description": "Amenity not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AmenityResponse"
+                        }
+                    }
+                },
+                "summary": "Update an amenity",
+                "operationId": "update_amenity",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/AmenityUpdate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "amenities"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "404": {
+                        "description": "Amenity not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/AmenityResponse"
+                        }
+                    }
+                },
+                "summary": "Get an amenity by ID",
+                "operationId": "get_amenity",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "amenities"
+                ]
+            }
+        },
+        "/api/v1/places/": {
+            "post": {
+                "responses": {
+                    "400": {
+                        "description": "Invalid input or validation error"
+                    },
+                    "201": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceResponse"
+                        }
+                    }
+                },
+                "summary": "Create a new place",
+                "operationId": "create_place",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/PlaceResponse"
+                            }
+                        }
+                    }
+                },
+                "summary": "List all places with details",
+                "operationId": "list_places",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            }
+        },
+        "/api/v1/places/{place_id}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "description": "The place identifier",
+                    "name": "place_id",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "put": {
+                "responses": {
+                    "404": {
+                        "description": "Place not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceResponse"
+                        }
+                    }
+                },
+                "summary": "Update a place",
+                "operationId": "update_place",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceUpdate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "404": {
+                        "description": "Place not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/PlaceResponse"
+                        }
+                    }
+                },
+                "summary": "Get a place by ID with full details",
+                "operationId": "get_place",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "places"
+                ]
+            }
+        },
+        "/api/v1/reviews/": {
+            "post": {
+                "responses": {
+                    "400": {
+                        "description": "Invalid input or user already reviewed this place"
+                    },
+                    "201": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ReviewResponse"
+                        }
+                    }
+                },
+                "summary": "Create a new review",
+                "operationId": "create_review",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ReviewCreate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "reviews"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ReviewResponse"
+                            }
+                        }
+                    }
+                },
+                "summary": "List all reviews",
+                "operationId": "list_reviews",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "reviews"
+                ]
+            }
+        },
+        "/api/v1/reviews/places/{place_id}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "description": "The place identifier",
+                    "name": "place_id",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ReviewResponse"
+                            }
+                        }
+                    }
+                },
+                "summary": "Get all reviews for a specific place",
+                "operationId": "get_place_reviews",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "reviews"
+                ]
+            }
+        },
+        "/api/v1/reviews/{review_id}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "description": "The review identifier",
+                    "name": "review_id",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "put": {
+                "responses": {
+                    "404": {
+                        "description": "Review not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ReviewResponse"
+                        }
+                    }
+                },
+                "summary": "Update a review (only rating and comment can be updated)",
+                "operationId": "update_review",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/ReviewUpdate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "reviews"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "404": {
+                        "description": "Review not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/ReviewResponse"
+                        }
+                    }
+                },
+                "summary": "Get a review by ID",
+                "operationId": "get_review",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "reviews"
+                ]
+            },
+            "delete": {
+                "responses": {
+                    "404": {
+                        "description": "Review not found"
+                    },
+                    "204": {
+                        "description": "Review deleted successfully"
+                    }
+                },
+                "summary": "Delete a review",
+                "operationId": "delete_review",
+                "tags": [
+                    "reviews"
+                ]
+            }
+        },
+        "/api/v1/users/": {
+            "post": {
+                "responses": {
+                    "400": {
+                        "description": "Email already exists or validation error"
+                    },
+                    "201": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UserResponse"
+                        }
+                    }
+                },
+                "summary": "Create a new user",
+                "operationId": "create_user",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/UserResponse"
+                            }
+                        }
+                    }
+                },
+                "summary": "List all users",
+                "operationId": "list_users",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/api/v1/users/{user_id}": {
+            "parameters": [
+                {
+                    "in": "path",
+                    "description": "The user identifier",
+                    "name": "user_id",
+                    "required": true,
+                    "type": "string"
+                }
+            ],
+            "put": {
+                "responses": {
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UserResponse"
+                        }
+                    }
+                },
+                "summary": "Update a user",
+                "operationId": "update_user",
+                "parameters": [
+                    {
+                        "name": "payload",
+                        "required": true,
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/UserUpdate"
+                        }
+                    },
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            },
+            "get": {
+                "responses": {
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "$ref": "#/definitions/UserResponse"
+                        }
+                    }
+                },
+                "summary": "Get a user by ID",
+                "operationId": "get_user",
+                "parameters": [
+                    {
+                        "name": "X-Fields",
+                        "in": "header",
+                        "type": "string",
+                        "format": "mask",
+                        "description": "An optional fields mask"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "HBnB API",
+        "version": "1.0",
+        "description": "A simple AirBnB clone API"
+    },
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "users",
+            "description": "User operations"
+        },
+        {
+            "name": "places",
+            "description": "Place operations"
+        },
+        {
+            "name": "reviews",
+            "description": "Review operations"
+        },
+        {
+            "name": "amenities",
+            "description": "Amenity operations"
+        }
+    ],
+    "definitions": {
+        "User": {
+            "required": [
+                "email",
+                "first_name",
+                "last_name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "description": "User email"
+                },
+                "first_name": {
+                    "type": "string",
+                    "description": "First name"
+                },
+                "last_name": {
+                    "type": "string",
+                    "description": "Last name"
+                },
+                "password": {
+                    "type": "string",
+                    "description": "User password"
+                }
+            },
+            "type": "object"
+        },
+        "UserResponse": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "User ID"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "User email"
+                },
+                "first_name": {
+                    "type": "string",
+                    "description": "First name"
+                },
+                "last_name": {
+                    "type": "string",
+                    "description": "Last name"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Creation timestamp"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Update timestamp"
+                }
+            },
+            "type": "object"
+        },
+        "UserUpdate": {
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "description": "User email"
+                },
+                "first_name": {
+                    "type": "string",
+                    "description": "First name"
+                },
+                "last_name": {
+                    "type": "string",
+                    "description": "Last name"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceCreate": {
+            "required": [
+                "address",
+                "city_id",
+                "description",
+                "host_id",
+                "latitude",
+                "longitude",
+                "max_guests",
+                "name",
+                "number_of_bathrooms",
+                "number_of_rooms",
+                "price_per_night"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Place name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Place description"
+                },
+                "address": {
+                    "type": "string",
+                    "description": "Place address"
+                },
+                "city_id": {
+                    "type": "string",
+                    "description": "City ID"
+                },
+                "latitude": {
+                    "type": "number",
+                    "description": "Latitude (-90 to 90)"
+                },
+                "longitude": {
+                    "type": "number",
+                    "description": "Longitude (-180 to 180)"
+                },
+                "host_id": {
+                    "type": "string",
+                    "description": "Host user ID"
+                },
+                "number_of_rooms": {
+                    "type": "integer",
+                    "description": "Number of rooms"
+                },
+                "number_of_bathrooms": {
+                    "type": "integer",
+                    "description": "Number of bathrooms"
+                },
+                "price_per_night": {
+                    "type": "number",
+                    "description": "Price per night (must be positive)"
+                },
+                "max_guests": {
+                    "type": "integer",
+                    "description": "Maximum number of guests"
+                },
+                "amenity_ids": {
+                    "type": "array",
+                    "description": "List of amenity IDs",
+                    "default": [],
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "PlaceResponse": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Place ID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Place name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Place description"
+                },
+                "address": {
+                    "type": "string",
+                    "description": "Place address"
+                },
+                "city_id": {
+                    "type": "string",
+                    "description": "City ID"
+                },
+                "latitude": {
+                    "type": "number",
+                    "description": "Latitude"
+                },
+                "longitude": {
+                    "type": "number",
+                    "description": "Longitude"
+                },
+                "host_id": {
+                    "type": "string",
+                    "description": "Host user ID"
+                },
+                "host": {
+                    "description": "Host details",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/PlaceUser"
+                        }
+                    ]
+                },
+                "number_of_rooms": {
+                    "type": "integer",
+                    "description": "Number of rooms"
+                },
+                "number_of_bathrooms": {
+                    "type": "integer",
+                    "description": "Number of bathrooms"
+                },
+                "price_per_night": {
+                    "type": "number",
+                    "description": "Price per night"
+                },
+                "max_guests": {
+                    "type": "integer",
+                    "description": "Maximum number of guests"
+                },
+                "amenities": {
+                    "type": "array",
+                    "description": "List of amenities",
+                    "items": {
+                        "$ref": "#/definitions/PlaceAmenity"
+                    }
+                },
+                "reviews": {
+                    "type": "array",
+                    "description": "List of reviews",
+                    "items": {
+                        "$ref": "#/definitions/PlaceReview"
+                    }
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Creation timestamp"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Update timestamp"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceUser": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "User ID"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "User email"
+                },
+                "first_name": {
+                    "type": "string",
+                    "description": "First name"
+                },
+                "last_name": {
+                    "type": "string",
+                    "description": "Last name"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceAmenity": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Amenity ID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Amenity name"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceReview": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Review ID"
+                },
+                "user_id": {
+                    "type": "string",
+                    "description": "User ID"
+                },
+                "rating": {
+                    "type": "integer",
+                    "description": "Rating"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "Comment"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Creation timestamp"
+                }
+            },
+            "type": "object"
+        },
+        "PlaceUpdate": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Place name"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Place description"
+                },
+                "address": {
+                    "type": "string",
+                    "description": "Place address"
+                },
+                "number_of_rooms": {
+                    "type": "integer",
+                    "description": "Number of rooms"
+                },
+                "number_of_bathrooms": {
+                    "type": "integer",
+                    "description": "Number of bathrooms"
+                },
+                "price_per_night": {
+                    "type": "number",
+                    "description": "Price per night"
+                },
+                "max_guests": {
+                    "type": "integer",
+                    "description": "Maximum number of guests"
+                },
+                "amenity_ids": {
+                    "type": "array",
+                    "description": "List of amenity IDs",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "type": "object"
+        },
+        "ReviewCreate": {
+            "required": [
+                "comment",
+                "place_id",
+                "rating",
+                "user_id"
+            ],
+            "properties": {
+                "place_id": {
+                    "type": "string",
+                    "description": "Place ID"
+                },
+                "user_id": {
+                    "type": "string",
+                    "description": "User ID"
+                },
+                "rating": {
+                    "type": "integer",
+                    "description": "Rating (1-5)",
+                    "minimum": 1,
+                    "maximum": 5
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "Review comment"
+                }
+            },
+            "type": "object"
+        },
+        "ReviewResponse": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Review ID"
+                },
+                "place_id": {
+                    "type": "string",
+                    "description": "Place ID"
+                },
+                "user_id": {
+                    "type": "string",
+                    "description": "User ID"
+                },
+                "user": {
+                    "description": "User details",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/ReviewUser"
+                        }
+                    ]
+                },
+                "rating": {
+                    "type": "integer",
+                    "description": "Rating (1-5)"
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "Review comment"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Creation timestamp"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Update timestamp"
+                }
+            },
+            "type": "object"
+        },
+        "ReviewUser": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "User ID"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "User email"
+                },
+                "first_name": {
+                    "type": "string",
+                    "description": "First name"
+                },
+                "last_name": {
+                    "type": "string",
+                    "description": "Last name"
+                }
+            },
+            "type": "object"
+        },
+        "ReviewUpdate": {
+            "properties": {
+                "rating": {
+                    "type": "integer",
+                    "description": "Rating (1-5)",
+                    "minimum": 1,
+                    "maximum": 5
+                },
+                "comment": {
+                    "type": "string",
+                    "description": "Review comment"
+                }
+            },
+            "type": "object"
+        },
+        "AmenityCreate": {
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Amenity name (max 50 chars)"
+                }
+            },
+            "type": "object"
+        },
+        "AmenityResponse": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Amenity ID"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Amenity name"
+                },
+                "created_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Creation timestamp"
+                },
+                "updated_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Update timestamp"
+                }
+            },
+            "type": "object"
+        },
+        "AmenityUpdate": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Amenity name (max 50 chars)"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "responses": {
+        "ParseError": {
+            "description": "When a mask can't be parsed"
+        },
+        "MaskError": {
+            "description": "When any error occurs on mask"
+        }
+    }
+}

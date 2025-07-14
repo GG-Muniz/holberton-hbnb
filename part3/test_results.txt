@@ -1,0 +1,65 @@
+(venv) gabriel@penguin:~/holberton-hbnb/holberton-hbnb/part2$ python test_script.py 
+HBnB API Automated Test Suite
+Testing against: http://localhost:5000/api/v1
+
+Make sure the Flask app is running before running these tests!
+
+==================================================
+Testing: USER ENDPOINTS
+==================================================
+✓ Create user: 201 (Expected: 201)
+✓ Password correctly excluded from response
+✓ Create host: 201 (Expected: 201)
+✓ Duplicate email: 400 (Expected: 400)
+✓ Invalid email format: 400 (Expected: 400)
+✓ Get all users: 200 (Expected: 200)
+✓ Get user by ID: 200 (Expected: 200)
+✓ Get non-existent user: 404 (Expected: 404)
+✓ Update user: 200 (Expected: 200)
+
+==================================================
+Testing: AMENITY ENDPOINTS
+==================================================
+✓ Create WiFi: 201 (Expected: 201)
+✓ Create Pool: 201 (Expected: 201)
+✓ Create Parking: 201 (Expected: 201)
+✓ Create Air Conditioning: 201 (Expected: 201)
+✓ Duplicate amenity: 400 (Expected: 400)
+✓ Empty amenity name: 400 (Expected: 400)
+✓ Get all amenities: 200 (Expected: 200)
+
+==================================================
+Testing: PLACE ENDPOINTS
+==================================================
+✓ Create place: 201 (Expected: 201)
+✓ Host details correctly included
+✓ Amenities correctly included
+✓ Invalid host ID: 400 (Expected: 400)
+✓ Negative price: 400 (Expected: 400)
+✓ Invalid latitude: 400 (Expected: 400)
+✓ Get place with details: 200 (Expected: 200)
+✓ Reviews array included (empty)
+
+==================================================
+Testing: REVIEW ENDPOINTS
+==================================================
+✓ Create review: 201 (Expected: 201)
+✓ User details correctly included in review
+✓ Duplicate review (same user/place): 400 (Expected: 400)
+✓ Invalid rating (>5): 400 (Expected: 400)
+✓ Empty comment: 400 (Expected: 400)
+✓ Get place reviews: 200 (Expected: 200)
+✓ Correct reviews returned for place
+✓ Update review: 200 (Expected: 200)
+✓ Delete review: 204 (Expected: 204)
+✓ Verify review deleted: 404 (Expected: 404)
+
+==================================================
+TEST SUMMARY
+==================================================
+Total Tests: 28
+Passed: 28
+Failed: 0
+
+All tests passed! The API is working correctly.
+@6-25-2025 16:47
