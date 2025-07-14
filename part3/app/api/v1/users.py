@@ -44,6 +44,11 @@ class UserList(Resource):
         """Create a new user"""
         try:
             data = request.json
+            
+            # Validate required fields
+            if not data.get('password'):
+                raise ValueError("Password is required")
+            
             user = facade.create_user(
                 email=data.get('email'),
                 first_name=data.get('first_name'),

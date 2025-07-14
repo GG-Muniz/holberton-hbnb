@@ -1,6 +1,9 @@
 from flask import Flask
 from flask_restx import Api
+from flask_bcrypt import Bcrypt
 from config import config
+
+bcrypt = Bcrypt()
 
 def create_app(config_name='development'):
     """
@@ -22,6 +25,9 @@ def create_app(config_name='development'):
         # Fallback to default configuration
         app.config.from_object(config['default'])
 
+    # Initialize extensions
+    bcrypt.init_app(app)
+    
     # Initialize Flask-RESTX
     api = Api(app, version='1.0', title='HBnB API',
               description='A simple AirBnB clone API',
