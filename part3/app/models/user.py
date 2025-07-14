@@ -1,9 +1,19 @@
 from app.models.base_model import BaseModel
-from app import bcrypt
+from app import bcrypt, db
+from sqlalchemy import Column, String, Boolean, Text
 import re
 
 class User(BaseModel):
-    """User model with secure password hashing"""
+    """User model with secure password hashing and SQLAlchemy mapping"""
+    __tablename__ = 'users'
+    
+    email = Column(String(120), unique=True, nullable=False, index=True)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    password_hash = Column(String(128), nullable=True)
+    is_admin = Column(Boolean, default=False, nullable=False)
+    places = Column(Text, default='[]', nullable=False)  # JSON string of place IDs
+    reviews = Column(Text, default='[]', nullable=False)  # JSON string of review IDs
     
     def __init__(self, email, first_name, last_name, password=None, is_admin=False):
         super().__init__()
@@ -24,11 +34,11 @@ class User(BaseModel):
         self.first_name = first_name
         self.last_name = last_name
         self.is_admin = bool(is_admin)
-        self._password_hash = None
+        self.password_hash = None
         if password:
             self.set_password(password)
-        self.places = []  # places owned by user
-        self.reviews = []  # reviews written by user
+        self.places = '[]'  # JSON string for database storage
+        self.reviews = '[]'  # JSON string for database storage
     
     def _is_valid_email(self, email):
         """Check if email is valid"""
@@ -43,13 +53,39 @@ class User(BaseModel):
             raise ValueError("Password cannot be empty")
         if len(password) < 6:
             raise ValueError("Password must be at least 6 characters long")
-        self._password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
     
     def check_password(self, password):
         """Check if the provided password matches the stored hash"""
-        if not self._password_hash:
+        if not self.password_hash:
             return False
-        return bcrypt.check_password_hash(self._password_hash, password)
+        return bcrypt.check_password_hash(self.password_hash, password)
+    
+    def get_places_list(self):
+        """Get places as a Python list"""
+        import json
+        try:
+            return json.loads(self.places) if self.places else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_places_list(self, places_list):
+        """Set places from a Python list"""
+        import json
+        self.places = json.dumps(places_list) if places_list else '[]'
+    
+    def get_reviews_list(self):
+        """Get reviews as a Python list"""
+        import json
+        try:
+            return json.loads(self.reviews) if self.reviews else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_reviews_list(self, reviews_list):
+        """Set reviews from a Python list"""
+        import json
+        self.reviews = json.dumps(reviews_list) if reviews_list else '[]'
     
     def to_dict(self):
         """Convert user object to dictionary (excluding password)"""

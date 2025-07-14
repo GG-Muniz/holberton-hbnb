@@ -1,4 +1,5 @@
 from app.persistence.repository_manager import RepositoryManager
+from app.persistence.user_repository import UserRepository
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
@@ -7,42 +8,52 @@ from app.models.amenity import Amenity
 class HBnBFacade:
     """Facade for the HBnB application"""
 
-    def __init__(self, repository=None):
-        """Initialize facade with optional repository override"""
+    def __init__(self, repository=None, user_repository=None):
+        """Initialize facade with optional repository overrides"""
         if repository:
             self.repo = repository
         else:
             self.repo = RepositoryManager.get_repository()
+        
+        if user_repository:
+            self.user_repo = user_repository
+        else:
+            # Use UserRepository for user operations if SQLAlchemy is enabled
+            import os
+            if os.environ.get('REPOSITORY_TYPE') == 'sqlalchemy':
+                self.user_repo = UserRepository()
+            else:
+                self.user_repo = self.repo
 
     # User operations
     def create_user(self, email: str, first_name: str, last_name: str, password: str = None, is_admin: bool = False) -> User:
         """Create a new user"""
         # Check if user with email already exists
-        existing_users = self.repo.get_by_attribute(User, email=email)
+        existing_users = self.user_repo.get_by_attribute(User, email=email)
         if existing_users:
             raise ValueError(f"User with email {email} already exists")
 
         user = User(email, first_name, last_name, password, is_admin)
-        self.repo.add(user)
+        self.user_repo.add(user)
         return user
 
     def get_user(self, user_id: str) -> User:
         """Get a user by ID"""
-        user = self.repo.get(User, user_id)
+        user = self.user_repo.get(User, user_id)
         if not user:
             raise ValueError(f"User with id {user_id} not found")
         return user
 
     def get_user_by_email(self, email: str) -> User:
         """Get user by email"""
-        users = self.repo.get_by_attribute(User, email=email)
+        users = self.user_repo.get_by_attribute(User, email=email)
         if not users:
             return None
         return users[0]
 
     def get_all_users(self) -> list:
         """Get all users"""
-        return self.repo.get_all(User)
+        return self.user_repo.get_all(User)
 
     def update_user(self, user_id: str, **kwargs) -> User:
         """Update a user"""
@@ -50,7 +61,7 @@ class HBnBFacade:
 
         # don't allow email updates if email already exists
         if 'email' in kwargs and kwargs['email'] != user.email:
-            existing = self.repo.get_by_attribute(User, email=kwargs['email'])
+            existing = self.user_repo.get_by_attribute(User, email=kwargs['email'])
             if existing:
                 raise ValueError(f"Email {kwargs['email']} already in use")
 
@@ -62,7 +73,7 @@ class HBnBFacade:
             if hasattr(user, key):
                 setattr(user, key, value)
 
-        self.repo.update(user)
+        self.user_repo.update(user)
         return user
 
     # Place operations
@@ -86,8 +97,10 @@ class HBnBFacade:
         self.repo.add(place)
 
         # add place to host's places list
-        host.places.append(place.id)
-        self.repo.update(host)
+        places_list = host.get_places_list()
+        places_list.append(place.id)
+        host.set_places_list(places_list)
+        self.user_repo.update(host)
 
         return place
 
@@ -146,9 +159,11 @@ class HBnBFacade:
 
         # add review to place and user
         place.reviews.append(review.id)
-        user.reviews.append(review.id)
+        reviews_list = user.get_reviews_list()
+        reviews_list.append(review.id)
+        user.set_reviews_list(reviews_list)
         self.repo.update(place)
-        self.repo.update(user)
+        self.user_repo.update(user)
 
         return review
 
@@ -196,9 +211,11 @@ class HBnBFacade:
             place.reviews.remove(review.id)
             self.repo.update(place)
 
-        if review.id in user.reviews:
-            user.reviews.remove(review.id)
-            self.repo.update(user)
+        reviews_list = user.get_reviews_list()
+        if review.id in reviews_list:
+            reviews_list.remove(review.id)
+            user.set_reviews_list(reviews_list)
+            self.user_repo.update(user)
 
         return self.repo.delete(Review, review_id)
 
