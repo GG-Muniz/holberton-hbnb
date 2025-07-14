@@ -1,7 +1,24 @@
 from app.models.base_model import BaseModel
+from sqlalchemy import Column, String, Text, Float, Integer
+import json
 
 class Place(BaseModel):
-    """Place model"""
+    """Place model with SQLAlchemy mapping"""
+    __tablename__ = 'places'
+    
+    name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=True)
+    address = Column(String(200), nullable=False)
+    city_id = Column(String(36), nullable=False)  # Will be FK in later tasks
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    host_id = Column(String(36), nullable=False)  # Will be FK in later tasks
+    number_of_rooms = Column(Integer, nullable=False)
+    number_of_bathrooms = Column(Integer, nullable=False)
+    price_per_night = Column(Float, nullable=False)
+    max_guests = Column(Integer, nullable=False)
+    amenity_ids = Column(Text, default='[]', nullable=False)  # JSON string of amenity IDs
+    reviews = Column(Text, default='[]', nullable=False)  # JSON string of review IDs
 
     def __init__(self, name, description, address, city_id, latitude, longitude,
                  host_id, number_of_rooms, number_of_bathrooms, price_per_night,
@@ -42,18 +59,44 @@ class Place(BaseModel):
         self.number_of_bathrooms = number_of_bathrooms
         self.price_per_night = price_per_night
         self.max_guests = max_guests
-        self.amenity_ids = amenity_ids or []
-        self.reviews = []  # Initialize as empty list, not passed as parameter
+        self.amenity_ids = json.dumps(amenity_ids or [])  # Store as JSON string
+        self.reviews = '[]'  # Initialize as empty JSON string
+
+    def get_amenity_ids_list(self):
+        """Get amenity IDs as a Python list"""
+        try:
+            return json.loads(self.amenity_ids) if self.amenity_ids else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_amenity_ids_list(self, amenity_ids_list):
+        """Set amenity IDs from a Python list"""
+        self.amenity_ids = json.dumps(amenity_ids_list) if amenity_ids_list else '[]'
+    
+    def get_reviews_list(self):
+        """Get reviews as a Python list"""
+        try:
+            return json.loads(self.reviews) if self.reviews else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    def set_reviews_list(self, reviews_list):
+        """Set reviews from a Python list"""
+        self.reviews = json.dumps(reviews_list) if reviews_list else '[]'
 
     def add_amenity(self, amenity_id):
         """add amenity to place if not already there"""
-        if amenity_id not in self.amenity_ids:
-            self.amenity_ids.append(amenity_id)
+        amenity_ids_list = self.get_amenity_ids_list()
+        if amenity_id not in amenity_ids_list:
+            amenity_ids_list.append(amenity_id)
+            self.set_amenity_ids_list(amenity_ids_list)
 
     def remove_amenity(self, amenity_id):
         """remove amenity from place"""
-        if amenity_id in self.amenity_ids:
-            self.amenity_ids.remove(amenity_id)
+        amenity_ids_list = self.get_amenity_ids_list()
+        if amenity_id in amenity_ids_list:
+            amenity_ids_list.remove(amenity_id)
+            self.set_amenity_ids_list(amenity_ids_list)
 
     def to_dict(self):
         """Convert place object to dictionary"""
@@ -70,7 +113,7 @@ class Place(BaseModel):
             'number_of_bathrooms': self.number_of_bathrooms,
             'price_per_night': self.price_per_night,
             'max_guests': self.max_guests,
-            'amenity_ids': self.amenity_ids
+            'amenity_ids': self.get_amenity_ids_list()
         })
         # Note: Don't include reviews in to_dict() - they're handled separately
         return place_dict

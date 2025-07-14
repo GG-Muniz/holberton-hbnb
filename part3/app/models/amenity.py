@@ -1,7 +1,11 @@
 from app.models.base_model import BaseModel
+from sqlalchemy import Column, String
 
 class Amenity(BaseModel):
-    """Amenity model"""
+    """Amenity model with SQLAlchemy mapping"""
+    __tablename__ = 'amenities'
+    
+    name = Column(String(50), unique=True, nullable=False, index=True)
 
     def __init__(self, name):
         super().__init__()

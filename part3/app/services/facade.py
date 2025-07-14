@@ -137,7 +137,10 @@ class HBnBFacade:
 
         for key, value in kwargs.items():
             if hasattr(place, key):
-                setattr(place, key, value)
+                if key == 'amenity_ids':
+                    place.set_amenity_ids_list(value)
+                else:
+                    setattr(place, key, value)
 
         self.repo.update(place)
         return place
@@ -158,10 +161,14 @@ class HBnBFacade:
         self.repo.add(review)
 
         # add review to place and user
-        place.reviews.append(review.id)
-        reviews_list = user.get_reviews_list()
-        reviews_list.append(review.id)
-        user.set_reviews_list(reviews_list)
+        place_reviews_list = place.get_reviews_list()
+        place_reviews_list.append(review.id)
+        place.set_reviews_list(place_reviews_list)
+        
+        user_reviews_list = user.get_reviews_list()
+        user_reviews_list.append(review.id)
+        user.set_reviews_list(user_reviews_list)
+        
         self.repo.update(place)
         self.user_repo.update(user)
 
@@ -207,8 +214,10 @@ class HBnBFacade:
         place = self.get_place(review.place_id)
         user = self.get_user(review.user_id)
 
-        if review.id in place.reviews:
-            place.reviews.remove(review.id)
+        place_reviews_list = place.get_reviews_list()
+        if review.id in place_reviews_list:
+            place_reviews_list.remove(review.id)
+            place.set_reviews_list(place_reviews_list)
             self.repo.update(place)
 
         reviews_list = user.get_reviews_list()
