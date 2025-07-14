@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Automated test script for HBnB API
+Test script for HBnB API
 Run this after starting the Flask app to verify all endpoints
 """
 

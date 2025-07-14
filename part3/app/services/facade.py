@@ -1,4 +1,4 @@
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository_manager import RepositoryManager
 from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
@@ -7,8 +7,12 @@ from app.models.amenity import Amenity
 class HBnBFacade:
     """Facade for the HBnB application"""
 
-    def __init__(self):
-        self.repo = InMemoryRepository()
+    def __init__(self, repository=None):
+        """Initialize facade with optional repository override"""
+        if repository:
+            self.repo = repository
+        else:
+            self.repo = RepositoryManager.get_repository()
 
     # User operations
     def create_user(self, email: str, first_name: str, last_name: str, password: str = None, is_admin: bool = False) -> User:
