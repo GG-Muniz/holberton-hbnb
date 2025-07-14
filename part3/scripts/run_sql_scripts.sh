@@ -57,21 +57,21 @@ else
 fi
 
 # Execute schema creation
-execute_sql_file "schema.sql" "Schema creation"
+execute_sql_file "../sql/schema.sql" "Schema creation"
 if [ $? -ne 0 ]; then
     echo "❌ Schema creation failed. Stopping execution."
     exit 1
 fi
 
 # Execute data insertion
-execute_sql_file "data.sql" "Initial data insertion"
+execute_sql_file "../sql/data.sql" "Initial data insertion"
 if [ $? -ne 0 ]; then
     echo "❌ Data insertion failed. Stopping execution."
     exit 1
 fi
 
 # Execute CRUD testing
-execute_sql_file "test_crud_operations.sql" "CRUD operations testing"
+execute_sql_file "../tests/test_crud_operations.sql" "CRUD operations testing"
 if [ $? -ne 0 ]; then
     echo "❌ CRUD testing failed. Stopping execution."
     exit 1

@@ -1,5 +1,9 @@
 # HBnB Database SQL Scripts
 
+**Author**: Gabriel Garcia Muniz  
+**GitHub**: [https://github.com/GG-Muniz](https://github.com/GG-Muniz)  
+**Project**: HBnB Database SQL Implementation
+
 This directory contains SQL scripts for creating and managing the HBnB application database schema and initial data.
 
 ## Files Overview
@@ -246,3 +250,7 @@ These SQL scripts complement the SQLAlchemy models in the application:
 - **Initial data provides working test environment**
 
 The database created by these scripts is fully compatible with the Flask-SQLAlchemy application and can be used as a starting point for development and testing.
+
+---
+
+**Created by Gabriel Garcia Muniz** | [GitHub](https://github.com/GG-Muniz) | Holberton School 2024

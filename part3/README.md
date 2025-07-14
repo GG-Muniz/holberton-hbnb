@@ -1,7 +1,11 @@
-# HBnB Evolution: Part 2 - Implementation
+# HBnB Evolution: Part 3 - Database Implementation
+
+**Author**: Gabriel Garcia Muniz  
+**GitHub**: [https://github.com/GG-Muniz](https://github.com/GG-Muniz)  
+**Project**: Holberton School HBnB Application - Part 3
 
 ## Overview
-This is Part 2 of the HBnB Evolution project, where we implement the API and business logic layer using Flask, Flask-RESTx, and the Facade pattern. The implementation includes a complete RESTful API with in-memory data storage that will be replaced with a database in Part 3.
+This is Part 3 of the HBnB Evolution project, where we implement database persistence using SQLAlchemy ORM. This part transitions from in-memory storage to a robust database solution with comprehensive relationships, constraints, and visual documentation.
 
 ## Project Structure
 ```
@@ -340,4 +344,4 @@ Open browser to: `http://localhost:5000/api/docs`
 ## Repository
 - **Author**: Gabriel Garcia Muniz
 - **GitHub repository**: holbertonschool-hbnb
-- **Directory**: part2
+- **Directory**: part3

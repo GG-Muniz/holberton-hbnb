@@ -63,7 +63,7 @@ def test_schema():
     
     try:
         # Execute schema creation
-        if not execute_sql_file(cursor, 'schema.sql', 'Schema creation'):
+        if not execute_sql_file(cursor, '../sql/schema.sql', 'Schema creation'):
             return False
         
         # Execute data insertion (simplified for SQLite)
