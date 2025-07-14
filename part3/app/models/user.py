@@ -1,6 +1,7 @@
 from app.models.base_model import BaseModel
 from app import bcrypt, db
-from sqlalchemy import Column, String, Boolean, Text
+from sqlalchemy import Column, String, Boolean
+from sqlalchemy.orm import relationship
 import re
 
 class User(BaseModel):
@@ -12,8 +13,10 @@ class User(BaseModel):
     last_name = Column(String(50), nullable=False)
     password_hash = Column(String(128), nullable=True)
     is_admin = Column(Boolean, default=False, nullable=False)
-    places = Column(Text, default='[]', nullable=False)  # JSON string of place IDs
-    reviews = Column(Text, default='[]', nullable=False)  # JSON string of review IDs
+    
+    # Relationships
+    places = relationship('Place', back_populates='host', cascade='all, delete-orphan')
+    reviews = relationship('Review', back_populates='user', cascade='all, delete-orphan')
     
     def __init__(self, email, first_name, last_name, password=None, is_admin=False):
         super().__init__()
@@ -37,8 +40,7 @@ class User(BaseModel):
         self.password_hash = None
         if password:
             self.set_password(password)
-        self.places = '[]'  # JSON string for database storage
-        self.reviews = '[]'  # JSON string for database storage
+        # places and reviews are now handled by SQLAlchemy relationships
     
     def _is_valid_email(self, email):
         """Check if email is valid"""
@@ -61,31 +63,6 @@ class User(BaseModel):
             return False
         return bcrypt.check_password_hash(self.password_hash, password)
     
-    def get_places_list(self):
-        """Get places as a Python list"""
-        import json
-        try:
-            return json.loads(self.places) if self.places else []
-        except (json.JSONDecodeError, TypeError):
-            return []
-    
-    def set_places_list(self, places_list):
-        """Set places from a Python list"""
-        import json
-        self.places = json.dumps(places_list) if places_list else '[]'
-    
-    def get_reviews_list(self):
-        """Get reviews as a Python list"""
-        import json
-        try:
-            return json.loads(self.reviews) if self.reviews else []
-        except (json.JSONDecodeError, TypeError):
-            return []
-    
-    def set_reviews_list(self, reviews_list):
-        """Set reviews from a Python list"""
-        import json
-        self.reviews = json.dumps(reviews_list) if reviews_list else '[]'
     
     def to_dict(self):
         """Convert user object to dictionary (excluding password)"""

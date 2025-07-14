@@ -1,6 +1,14 @@
 from app.models.base_model import BaseModel
-from sqlalchemy import Column, String, Text, Float, Integer
+from sqlalchemy import Column, String, Text, Float, Integer, ForeignKey, Table
+from sqlalchemy.orm import relationship
+from app import db
 import json
+
+# Many-to-many association table for Place-Amenity relationship
+place_amenity = Table('place_amenity', db.Model.metadata,
+    Column('place_id', String(36), ForeignKey('places.id'), primary_key=True),
+    Column('amenity_id', String(36), ForeignKey('amenities.id'), primary_key=True)
+)
 
 class Place(BaseModel):
     """Place model with SQLAlchemy mapping"""
@@ -12,13 +20,16 @@ class Place(BaseModel):
     city_id = Column(String(36), nullable=False)  # Will be FK in later tasks
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    host_id = Column(String(36), nullable=False)  # Will be FK in later tasks
+    host_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     number_of_rooms = Column(Integer, nullable=False)
     number_of_bathrooms = Column(Integer, nullable=False)
     price_per_night = Column(Float, nullable=False)
     max_guests = Column(Integer, nullable=False)
-    amenity_ids = Column(Text, default='[]', nullable=False)  # JSON string of amenity IDs
-    reviews = Column(Text, default='[]', nullable=False)  # JSON string of review IDs
+    
+    # Relationships
+    host = relationship('User', back_populates='places')
+    reviews = relationship('Review', back_populates='place', cascade='all, delete-orphan')
+    amenities = relationship('Amenity', secondary=place_amenity, back_populates='places')
 
     def __init__(self, name, description, address, city_id, latitude, longitude,
                  host_id, number_of_rooms, number_of_bathrooms, price_per_night,
@@ -59,44 +70,17 @@ class Place(BaseModel):
         self.number_of_bathrooms = number_of_bathrooms
         self.price_per_night = price_per_night
         self.max_guests = max_guests
-        self.amenity_ids = json.dumps(amenity_ids or [])  # Store as JSON string
-        self.reviews = '[]'  # Initialize as empty JSON string
+        # amenities and reviews are now handled by SQLAlchemy relationships
 
-    def get_amenity_ids_list(self):
-        """Get amenity IDs as a Python list"""
-        try:
-            return json.loads(self.amenity_ids) if self.amenity_ids else []
-        except (json.JSONDecodeError, TypeError):
-            return []
-    
-    def set_amenity_ids_list(self, amenity_ids_list):
-        """Set amenity IDs from a Python list"""
-        self.amenity_ids = json.dumps(amenity_ids_list) if amenity_ids_list else '[]'
-    
-    def get_reviews_list(self):
-        """Get reviews as a Python list"""
-        try:
-            return json.loads(self.reviews) if self.reviews else []
-        except (json.JSONDecodeError, TypeError):
-            return []
-    
-    def set_reviews_list(self, reviews_list):
-        """Set reviews from a Python list"""
-        self.reviews = json.dumps(reviews_list) if reviews_list else '[]'
+    def add_amenity(self, amenity):
+        """Add amenity to place if not already there"""
+        if amenity not in self.amenities:
+            self.amenities.append(amenity)
 
-    def add_amenity(self, amenity_id):
-        """add amenity to place if not already there"""
-        amenity_ids_list = self.get_amenity_ids_list()
-        if amenity_id not in amenity_ids_list:
-            amenity_ids_list.append(amenity_id)
-            self.set_amenity_ids_list(amenity_ids_list)
-
-    def remove_amenity(self, amenity_id):
-        """remove amenity from place"""
-        amenity_ids_list = self.get_amenity_ids_list()
-        if amenity_id in amenity_ids_list:
-            amenity_ids_list.remove(amenity_id)
-            self.set_amenity_ids_list(amenity_ids_list)
+    def remove_amenity(self, amenity):
+        """Remove amenity from place"""
+        if amenity in self.amenities:
+            self.amenities.remove(amenity)
 
     def to_dict(self):
         """Convert place object to dictionary"""
@@ -113,7 +97,7 @@ class Place(BaseModel):
             'number_of_bathrooms': self.number_of_bathrooms,
             'price_per_night': self.price_per_night,
             'max_guests': self.max_guests,
-            'amenity_ids': self.get_amenity_ids_list()
+            'amenity_ids': [amenity.id for amenity in self.amenities] if self.amenities else []
         })
         # Note: Don't include reviews in to_dict() - they're handled separately
         return place_dict

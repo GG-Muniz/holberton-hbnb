@@ -1,11 +1,15 @@
 from app.models.base_model import BaseModel
 from sqlalchemy import Column, String
+from sqlalchemy.orm import relationship
 
 class Amenity(BaseModel):
     """Amenity model with SQLAlchemy mapping"""
     __tablename__ = 'amenities'
     
     name = Column(String(50), unique=True, nullable=False, index=True)
+    
+    # Relationships
+    places = relationship('Place', secondary='place_amenity', back_populates='amenities')
 
     def __init__(self, name):
         super().__init__()

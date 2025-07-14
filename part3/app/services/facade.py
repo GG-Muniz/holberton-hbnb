@@ -85,23 +85,26 @@ class HBnBFacade:
         except ValueError:
             raise ValueError(f"Host with id {place_data['host_id']} not found")
 
-        # validate amenities exist
+        # validate amenities exist and get amenity objects
+        amenities = []
         if 'amenity_ids' in place_data and place_data['amenity_ids']:
             for amenity_id in place_data['amenity_ids']:
                 try:
-                    self.get_amenity(amenity_id)
+                    amenity = self.get_amenity(amenity_id)
+                    amenities.append(amenity)
                 except ValueError:
                     raise ValueError(f"Amenity with id {amenity_id} not found")
-
+        
+        # Remove amenity_ids from place_data since we'll use relationships
+        place_data = {k: v for k, v in place_data.items() if k != 'amenity_ids'}
+        
         place = Place(**place_data)
+        
+        # Add amenities to the place using relationships
+        for amenity in amenities:
+            place.amenities.append(amenity)
+        
         self.repo.add(place)
-
-        # add place to host's places list
-        places_list = host.get_places_list()
-        places_list.append(place.id)
-        host.set_places_list(places_list)
-        self.user_repo.update(host)
-
         return place
 
     def get_place(self, place_id: str) -> Place:
@@ -123,13 +126,21 @@ class HBnBFacade:
         """Update a place"""
         place = self.get_place(place_id)
 
-        # validate new amenities if provided
+        # validate new amenities if provided and update relationships
         if 'amenity_ids' in kwargs:
+            # Clear existing amenities
+            place.amenities.clear()
+            
+            # Add new amenities
             for amenity_id in kwargs['amenity_ids']:
                 try:
-                    self.get_amenity(amenity_id)
+                    amenity = self.get_amenity(amenity_id)
+                    place.amenities.append(amenity)
                 except ValueError:
                     raise ValueError(f"Amenity with id {amenity_id} not found")
+            
+            # Remove amenity_ids from kwargs since it's handled by relationships
+            del kwargs['amenity_ids']
 
         # validate price if being updated
         if 'price_per_night' in kwargs and kwargs['price_per_night'] < 0:
@@ -137,10 +148,7 @@ class HBnBFacade:
 
         for key, value in kwargs.items():
             if hasattr(place, key):
-                if key == 'amenity_ids':
-                    place.set_amenity_ids_list(value)
-                else:
-                    setattr(place, key, value)
+                setattr(place, key, value)
 
         self.repo.update(place)
         return place
@@ -159,18 +167,8 @@ class HBnBFacade:
 
         review = Review(place_id, user_id, rating, comment)
         self.repo.add(review)
-
-        # add review to place and user
-        place_reviews_list = place.get_reviews_list()
-        place_reviews_list.append(review.id)
-        place.set_reviews_list(place_reviews_list)
         
-        user_reviews_list = user.get_reviews_list()
-        user_reviews_list.append(review.id)
-        user.set_reviews_list(user_reviews_list)
-        
-        self.repo.update(place)
-        self.user_repo.update(user)
+        # The relationships will automatically be updated by SQLAlchemy
 
         return review
 
@@ -210,22 +208,7 @@ class HBnBFacade:
         """Delete a review"""
         review = self.get_review(review_id)
 
-        # remove review from place and user
-        place = self.get_place(review.place_id)
-        user = self.get_user(review.user_id)
-
-        place_reviews_list = place.get_reviews_list()
-        if review.id in place_reviews_list:
-            place_reviews_list.remove(review.id)
-            place.set_reviews_list(place_reviews_list)
-            self.repo.update(place)
-
-        reviews_list = user.get_reviews_list()
-        if review.id in reviews_list:
-            reviews_list.remove(review.id)
-            user.set_reviews_list(reviews_list)
-            self.user_repo.update(user)
-
+        # SQLAlchemy relationships will automatically handle cleanup with cascade delete
         return self.repo.delete(Review, review_id)
 
     # Amenity operations

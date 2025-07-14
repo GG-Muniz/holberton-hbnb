@@ -1,14 +1,19 @@
 from app.models.base_model import BaseModel
-from sqlalchemy import Column, String, Integer, Text
+from sqlalchemy import Column, String, Integer, Text, ForeignKey
+from sqlalchemy.orm import relationship
 
 class Review(BaseModel):
     """Review model with SQLAlchemy mapping"""
     __tablename__ = 'reviews'
     
-    place_id = Column(String(36), nullable=False)  # Will be FK in later tasks
-    user_id = Column(String(36), nullable=False)   # Will be FK in later tasks
+    place_id = Column(String(36), ForeignKey('places.id'), nullable=False)
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False)
     rating = Column(Integer, nullable=False)
     comment = Column(Text, nullable=False)
+    
+    # Relationships
+    place = relationship('Place', back_populates='reviews')
+    user = relationship('User', back_populates='reviews')
 
     def __init__(self, place_id, user_id, rating, comment):
         super().__init__()
