@@ -11,14 +11,14 @@ class HBnBFacade:
         self.repo = InMemoryRepository()
 
     # User operations
-    def create_user(self, email: str, first_name: str, last_name: str, password: str = None) -> User:
+    def create_user(self, email: str, first_name: str, last_name: str, password: str = None, is_admin: bool = False) -> User:
         """Create a new user"""
         # Check if user with email already exists
         existing_users = self.repo.get_by_attribute(User, email=email)
         if existing_users:
             raise ValueError(f"User with email {email} already exists")
 
-        user = User(email, first_name, last_name, password)
+        user = User(email, first_name, last_name, password, is_admin)
         self.repo.add(user)
         return user
 

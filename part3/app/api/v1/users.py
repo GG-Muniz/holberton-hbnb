@@ -24,6 +24,7 @@ user_response = api.model('UserResponse', {
     'email': fields.String(description='User email'),
     'first_name': fields.String(description='First name'),
     'last_name': fields.String(description='Last name'),
+    'is_admin': fields.Boolean(description='Admin status'),
     'created_at': fields.DateTime(description='Creation timestamp'),
     'updated_at': fields.DateTime(description='Update timestamp')
 })

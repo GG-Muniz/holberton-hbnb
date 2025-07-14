@@ -5,7 +5,7 @@ import re
 class User(BaseModel):
     """User model with secure password hashing"""
     
-    def __init__(self, email, first_name, last_name, password=None):
+    def __init__(self, email, first_name, last_name, password=None, is_admin=False):
         super().__init__()
         # validate email format
         if not self._is_valid_email(email):
@@ -23,6 +23,7 @@ class User(BaseModel):
         self.email = email
         self.first_name = first_name
         self.last_name = last_name
+        self.is_admin = bool(is_admin)
         self._password_hash = None
         if password:
             self.set_password(password)
@@ -56,6 +57,7 @@ class User(BaseModel):
         user_dict.update({
             'email': self.email,
             'first_name': self.first_name,
-            'last_name': self.last_name
+            'last_name': self.last_name,
+            'is_admin': self.is_admin
         })
         return user_dict
