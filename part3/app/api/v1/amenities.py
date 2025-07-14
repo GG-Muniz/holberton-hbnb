@@ -1,6 +1,8 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
+from flask_jwt_extended import jwt_required
 from app.services import facade
+from app.utils.admin import admin_required
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -33,8 +35,12 @@ class AmenityList(Resource):
     @api.expect(amenity_create_model)
     @api.marshal_with(amenity_response, code=201)
     @api.response(400, 'Amenity already exists or validation error')
+    @api.response(401, 'Authentication required')
+    @api.response(403, 'Administrator privileges required')
+    @jwt_required()
+    @admin_required
     def post(self):
-        """Create a new amenity"""
+        """Create a new amenity (admin only)"""
         try:
             data = request.json
             name = data.get('name', '').strip()
@@ -63,8 +69,12 @@ class Amenity(Resource):
     @api.doc('update_amenity')
     @api.expect(amenity_update_model)
     @api.marshal_with(amenity_response)
+    @api.response(401, 'Authentication required')
+    @api.response(403, 'Administrator privileges required')
+    @jwt_required()
+    @admin_required
     def put(self, amenity_id):
-        """Update an amenity"""
+        """Update an amenity (admin only)"""
         try:
             data = request.json
             # remove None values and empty strings

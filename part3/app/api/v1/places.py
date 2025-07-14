@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
+from app.utils.admin import admin_or_owner_required
 
 api = Namespace('places', description='Place operations')
 
@@ -174,19 +175,19 @@ class Place(Resource):
     @api.expect(place_update_model)
     @api.marshal_with(place_response)
     @api.response(401, 'Authentication required')
-    @api.response(403, 'Access denied - not the place owner')
+    @api.response(403, 'Access denied - not the place owner or admin')
     @jwt_required()
     def put(self, place_id):
-        """Update a place (requires authentication and ownership)"""
+        """Update a place (requires authentication and ownership or admin privileges)"""
         try:
             current_user_id = get_jwt_identity()
             
             # Get the place to check ownership
             place = facade.get_place(place_id)
             
-            # Check if the current user is the owner of the place
-            if place.host_id != current_user_id:
-                api.abort(403, 'Access denied - you can only update places you own')
+            # Check if the current user is the owner or an admin
+            if not admin_or_owner_required(place.host_id, current_user_id):
+                api.abort(403, 'Access denied - you can only update places you own (or be an admin)')
             
             data = request.json
             # remove None values

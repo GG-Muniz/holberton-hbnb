@@ -15,7 +15,6 @@ user_model = api.model('User', {
 })
 
 user_update_model = api.model('UserUpdate', {
-    'email': fields.String(description='User email'),
     'first_name': fields.String(description='First name'),
     'last_name': fields.String(description='Last name')
 })

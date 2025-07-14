@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask import request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
+from app.utils.admin import admin_or_owner_required
 
 api = Namespace('reviews', description='Review operations')
 
@@ -118,19 +119,19 @@ class Review(Resource):
     @api.expect(review_update_model)
     @api.marshal_with(review_response)
     @api.response(401, 'Authentication required')
-    @api.response(403, 'Access denied - not the review owner')
+    @api.response(403, 'Access denied - not the review owner or admin')
     @jwt_required()
     def put(self, review_id):
-        """Update a review (requires authentication and ownership)"""
+        """Update a review (requires authentication and ownership or admin privileges)"""
         try:
             current_user_id = get_jwt_identity()
             
             # Get the review to check ownership
             review = facade.get_review(review_id)
             
-            # Check if the current user is the owner of the review
-            if review.user_id != current_user_id:
-                api.abort(403, 'Access denied - you can only update reviews you created')
+            # Check if the current user is the owner or an admin
+            if not admin_or_owner_required(review.user_id, current_user_id):
+                api.abort(403, 'Access denied - you can only update reviews you created (or be an admin)')
             
             data = request.json
             # validate rating if provided
@@ -154,19 +155,19 @@ class Review(Resource):
     @api.doc('delete_review')
     @api.response(204, 'Review deleted successfully')
     @api.response(401, 'Authentication required')
-    @api.response(403, 'Access denied - not the review owner')
+    @api.response(403, 'Access denied - not the review owner or admin')
     @jwt_required()
     def delete(self, review_id):
-        """Delete a review (requires authentication and ownership)"""
+        """Delete a review (requires authentication and ownership or admin privileges)"""
         try:
             current_user_id = get_jwt_identity()
             
             # Get the review to check ownership
             review = facade.get_review(review_id)
             
-            # Check if the current user is the owner of the review
-            if review.user_id != current_user_id:
-                api.abort(403, 'Access denied - you can only delete reviews you created')
+            # Check if the current user is the owner or an admin
+            if not admin_or_owner_required(review.user_id, current_user_id):
+                api.abort(403, 'Access denied - you can only delete reviews you created (or be an admin)')
             
             facade.delete_review(review_id)
             return '', 204
