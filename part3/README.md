@@ -24,49 +24,47 @@ This is Part 3 of the HBnB Evolution project, where we implement database persis
 ```
 part3/
 ├── README.md                    # This file
-├── PROJECT_README.md            # Comprehensive project documentation
-├── DIRECTORY_STRUCTURE.md       # Detailed directory explanation
 ├── requirements.txt             # Python dependencies
 ├── config.py                    # Application configuration
 ├── run.py                       # Flask application entry point
 │
 ├── app/                         # Main application package
-│   ├── __init__.py             # Flask app factory
+│   ├── __init__.py             # Flask app factory with API setup
 │   ├── api/                    # REST API endpoints
 │   │   ├── __init__.py
 │   │   └── v1/
 │   │       ├── __init__.py
 │   │       ├── admin.py        # Admin endpoints
-│   │       ├── amenities.py    # Amenity endpoints
-│   │       ├── auth.py         # Authentication endpoints
-│   │       ├── places.py       # Place endpoints
-│   │       ├── reviews.py      # Review endpoints
-│   │       └── users.py        # User endpoints
-│   ├── models/                 # SQLAlchemy models
+│   │       ├── amenities.py    # Amenity CRUD endpoints
+│   │       ├── auth.py         # Authentication & JWT endpoints
+│   │       ├── places.py       # Place CRUD endpoints
+│   │       ├── reviews.py      # Review CRUD endpoints
+│   │       └── users.py        # User CRUD endpoints
+│   ├── models/                 # SQLAlchemy ORM models
 │   │   ├── __init__.py
-│   │   ├── base_model.py       # Base model with common fields
-│   │   ├── user.py             # User entity model
-│   │   ├── place.py            # Place entity model
-│   │   ├── review.py           # Review entity model
-│   │   └── amenity.py          # Amenity entity model
-│   ├── persistence/            # Data persistence layer
+│   │   ├── base_model.py       # Base model (UUID, timestamps)
+│   │   ├── user.py             # User entity with auth
+│   │   ├── place.py            # Place entity with relationships
+│   │   ├── review.py           # Review entity with constraints
+│   │   └── amenity.py          # Amenity entity
+│   ├── persistence/            # Data access layer
 │   │   ├── __init__.py
 │   │   ├── repository.py       # Abstract repository interface
-│   │   ├── repository_manager.py # Repository factory
+│   │   ├── repository_manager.py # Repository factory pattern
 │   │   ├── sqlalchemy_repository.py # SQLAlchemy implementation
-│   │   └── user_repository.py  # User-specific repository
+│   │   └── user_repository.py  # User-specific repository methods
 │   ├── services/               # Business logic layer
 │   │   ├── __init__.py
-│   │   └── facade.py           # Application facade pattern
+│   │   └── facade.py           # Facade pattern for business logic
 │   └── utils/                  # Utility functions
 │       ├── __init__.py
-│       └── admin.py            # Admin utilities
+│       └── admin.py            # Admin helper functions
 │
-├── diagrams/                   # Database visualization
+├── diagrams/                   # Database visualization (Mermaid.js)
 │   ├── database_er_diagram.md      # Complete ER diagram
 │   ├── table_structure_diagrams.md # Individual table schemas
 │   ├── relationship_diagrams.md    # Relationship patterns
-│   └── MERMAID_QUICK_REFERENCE.md  # Diagram usage guide
+│   └── MERMAID_QUICK_REFERENCE.md  # Quick diagram reference
 │
 ├── docs/                       # Documentation
 │   ├── DATABASE_DIAGRAMS_README.md # Comprehensive diagram guide
@@ -74,26 +72,35 @@ part3/
 │
 ├── sql/                        # Database scripts
 │   ├── schema.sql              # Database schema creation
-│   └── data.sql                # Initial data insertion
+│   └── data.sql                # Initial data (admin + amenities)
 │
-├── tests/                      # Test suites
-│   ├── test_*.py               # Python test files
-│   ├── test_*.sql              # SQL test files
-│   ├── test_results.txt        # Test execution results
-│   └── swagger_run_results.txt # API testing results
+├── tests/                      # Test suites (10 Python, 1 SQL)
+│   ├── test_admin_endpoints.py        # Admin API tests
+│   ├── test_all_entities_sqlalchemy.py # Entity CRUD tests
+│   ├── test_authenticated_endpoints.py # Auth API tests
+│   ├── test_crud_operations.sql       # SQL CRUD tests
+│   ├── test_jwt_auth.py              # JWT authentication tests
+│   ├── test_mermaid_diagrams.py      # Diagram validation tests
+│   ├── test_repository_integration.py # Repository layer tests
+│   ├── test_script.py                # General test utilities
+│   ├── test_sqlalchemy_relationships.py # Relationship tests
+│   ├── test_sqlite_schema.py         # SQLite schema validation
+│   ├── test_user_sqlalchemy.py       # User model tests
+│   ├── test_results.txt              # Test execution results
+│   └── swagger_run_results.txt       # API testing results
 │
 ├── scripts/                    # Utility scripts
-│   ├── run_sql_scripts.sh      # Database setup automation
+│   ├── run_sql_scripts.sh      # Automated database setup
 │   └── init_db.py              # Database initialization
 │
-├── demos/                      # Demo and example files
+├── demos/                      # Demo and example code
 │   └── demo_user_sqlalchemy.py # SQLAlchemy usage examples
 │
-├── instance/                   # Instance-specific files
+├── instance/                   # Flask instance folder
 │   └── hbnb_dev.db             # SQLite development database
 │
 └── venv/                       # Virtual environment
-    └── ...
+    └── ...                     # Python packages and dependencies
 ```
 
 ## Quick Start
@@ -136,7 +143,8 @@ python3 run.py
 
 ### 4. Access the Application
 
-- **API Documentation**: http://localhost:5000
+- **API Documentation**: http://localhost:5000/api/docs
+- **API Base URL**: http://localhost:5000/api/v1
 - **Interactive Swagger UI**: Test all endpoints directly in browser
 - **Default Admin**: admin@hbnb.com / admin123
 
@@ -196,16 +204,19 @@ The application implements a comprehensive rental property management schema:
 ```bash
 # Database tests
 cd tests
-python3 test_sqlite_schema.py           # Schema validation
-python3 test_sqlalchemy_relationships.py # Relationship testing
+python3 test_sqlite_schema.py              # Schema validation  
+python3 test_sqlalchemy_relationships.py   # Relationship testing
 
-# Application tests
-python3 test_repository_integration.py  # Repository layer
-python3 test_authenticated_endpoints.py # API endpoints
-python3 test_admin_endpoints.py        # Admin functionality
+# Application tests  
+python3 test_repository_integration.py     # Repository layer
+python3 test_authenticated_endpoints.py    # API endpoints
+python3 test_admin_endpoints.py           # Admin functionality
+python3 test_all_entities_sqlalchemy.py   # Entity CRUD operations
+python3 test_jwt_auth.py                  # JWT authentication
+python3 test_user_sqlalchemy.py          # User model tests
 
 # Diagram validation
-python3 test_mermaid_diagrams.py       # Mermaid syntax check
+python3 test_mermaid_diagrams.py          # Mermaid syntax validation
 ```
 
 ### Database Setup Tests
@@ -240,10 +251,10 @@ The project includes comprehensive ER diagrams created with Mermaid.js:
    ```
 
 #### Available Diagrams
-- **Complete ER Diagram**: All entities and relationships
-- **Table Structures**: Individual table schemas with constraints
-- **Relationship Patterns**: Focused relationship examples
-- **Quick Reference**: Usage guide for all diagrams
+- **Complete ER Diagram**: All entities and relationships (`diagrams/database_er_diagram.md`)
+- **Table Structures**: Individual table schemas with constraints (`diagrams/table_structure_diagrams.md`)
+- **Relationship Patterns**: Focused relationship examples (`diagrams/relationship_diagrams.md`)
+- **Quick Reference**: Usage guide for all diagrams (`diagrams/MERMAID_QUICK_REFERENCE.md`)
 
 ## Configuration
 
@@ -319,10 +330,28 @@ curl -X POST http://localhost:5000/api/v1/places/ \
 - Input sanitization and validation
 - Graceful failure handling
 
+## API Documentation
+
+### Interactive Swagger UI
+Access the complete API documentation at: **http://localhost:5000/api/docs**
+
+The Swagger UI provides:
+- Interactive testing of all endpoints
+- Request/response schemas
+- Authentication token management
+- Real-time API exploration
+
+### Available API Endpoints
+- **`/api/v1/auth`** - Authentication (login, register, tokens)
+- **`/api/v1/users`** - User management (CRUD operations)
+- **`/api/v1/places`** - Place listings (CRUD with relationships)
+- **`/api/v1/reviews`** - Review system (full CRUD with constraints)
+- **`/api/v1/amenities`** - Amenity features (CRUD operations)
+- **`/api/v1/admin`** - Administrative operations
+
 ## Documentation
 
 For comprehensive documentation, see:
-- **PROJECT_README.md**: Complete project overview and setup
 - **docs/DATABASE_DIAGRAMS_README.md**: Detailed diagram documentation
 - **docs/SQL_README.md**: SQL scripts and database setup guide
 - **diagrams/MERMAID_QUICK_REFERENCE.md**: Quick diagram reference
